@@ -1,14 +1,11 @@
 package com.example;
 
-import ratpack.error.ServerErrorHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ratpack.exec.Blocking;
 import ratpack.guice.Guice;
-import ratpack.handling.Handler;
-import ratpack.http.MediaType;
 import ratpack.http.RequestBodyTooLargeException;
 import ratpack.server.RatpackServer;
-import ratpack.ssl.SSLContexts;
-
-import java.io.File;
 
 /**
  * Created by akuma110 on 7/5/2017.
@@ -16,6 +13,7 @@ import java.io.File;
 public class Application {
 
     public static void main(String[] args) throws Exception {
+        Logger logger = LoggerFactory.getLogger(Application.class);
         /*
         If content length is 10KB (smaller than 1 MB), proper error message is thrown.
         But If content length is 1 MB, No response is sent at all.
@@ -25,19 +23,23 @@ public class Application {
                     server
                             .serverConfig(serverConfigBuilder -> serverConfigBuilder
                                            .maxContentLength(contentLength)
+                                    .development(false)
                             )
                             .registry(Guice.registry(bindingsSpec ->
                                     bindingsSpec.module(AppModule.class)
                             ))
                             .handlers(chain -> {
                                         chain.post(ctx -> {
-                                            System.out.println("request received..");
+                                            logger.info("In Main Thread");
                                             if (ctx.getRequest().getContentLength() > contentLength) {
                                                 ctx.error(new RequestBodyTooLargeException(contentLength,ctx.getRequest().getContentLength()));
                                             }else {
                                                 ctx.getRequest().getBody().then(typedData -> {
-                                                    //System.out.print(typedData.getText());
-                                                    ctx.render("OK");
+
+                                                    Blocking.get(()-> {
+                                                        logger.info("Inside Blocking thread");
+                                                        return "OK";
+                                                    }).then(s -> ctx.render(s));
                                                 });
                                             }
                                         });

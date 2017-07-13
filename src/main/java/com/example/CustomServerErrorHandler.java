@@ -1,7 +1,7 @@
 package com.example;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 import ratpack.error.ServerErrorHandler;
 import ratpack.handling.Context;
 import ratpack.http.MediaType;
@@ -14,12 +14,12 @@ import java.util.concurrent.ExecutionException;
  */
 public class CustomServerErrorHandler implements ServerErrorHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(CustomServerErrorHandler.class);
+    //private final Logger logger = LoggerFactory.getLogger(CustomServerErrorHandler.class);
 
     @Override
     public void error(Context context, Throwable throwable) throws Exception {
         //throwable.printStackTrace();
-        logger.info(throwable.getMessage());
+        //logger.info(throwable.getMessage());
         System.out.println("Error occured");
 
         int status = 500;
